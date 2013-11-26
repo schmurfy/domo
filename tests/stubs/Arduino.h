@@ -18,10 +18,8 @@ public:
     }
   }
   
-  void write(const char *s)
+  void write(const char *s, size_t size)
   {
-    size_t size = strlen(s) + 1;
-    
     if( this->buffer ){
       free(this->buffer);
     }
@@ -33,5 +31,11 @@ public:
   const char *getBuffer()
   {
     return buffer;
+  }
+  
+  size_t readBytesUntil( char, char *_buffer, size_t len)
+  {
+    // just return the buffer
+    return strlcpy(_buffer, this->buffer, len);
   }
 };

@@ -3,14 +3,31 @@
 #include <CppUTest/MemoryLeakDetectorNewMacros.h>
 #include "serial_comm.h"
 
+class TestComm : public SerialComm
+{
+public:
+  SerialMessage *last_message;
+  
+  TestComm(HardwareSerial *s) : SerialComm(s)
+  {
+    this->last_message = NULL;
+  }
+  
+  void msgReceived(SerialMessage *msg)
+  {
+    last_message = msg;
+  }
+  
+};
+
 TEST_GROUP(Core)
 {
   HardwareSerial s;
-  SerialComm *sc;
+  TestComm *sc;
   
   void setup()
   {
-    sc = new SerialComm(&s);
+    sc = new TestComm(&s);
   }
   
   void teardown()
@@ -19,6 +36,28 @@ TEST_GROUP(Core)
   }
 };
 
+// read
+TEST(Core, CallCallback)
+{
+  // fill buffer
+  char msg[] = "SET 1 OFF\x04";
+  s.write(msg, strlen(msg) + 1);
+  
+  // and act as if we received it
+  sc->dataAvailable();
+  
+  CHECK(sc->last_message != NULL);
+  
+  STRCMP_EQUAL("SET", sc->last_message->getCmd());
+  LONGS_EQUAL(2, sc->last_message->argsCount());
+  STRCMP_EQUAL("1", sc->last_message->getArg(0));
+  STRCMP_EQUAL("OFF", sc->last_message->getArg(1));
+  
+  delete sc->last_message;
+}
+
+
+// write
 TEST(Core, ShouldAddArgument)
 {
   SerialMessage msg("SEND");
@@ -35,19 +74,26 @@ TEST(Core, NoArgs)
   
   sc->sendMsg(&msg);
   
-  STRCMP_EQUAL("WTF", s.getBuffer());
+  STRCMP_EQUAL("WTF\x04", s.getBuffer());
 }
 
 
 TEST(Core, OneArgs)
 {
+  const char *buffer;
+  
   SerialMessage msg("STATE");
   
   msg.addArgument("42");
   
   sc->sendMsg(&msg);
   
-  STRCMP_EQUAL("STATE 42", s.getBuffer());
+  
+  buffer = s.getBuffer();
+  BYTES_EQUAL('2', buffer[7]);
+  BYTES_EQUAL(0x04, buffer[8]);
+  
+  STRCMP_EQUAL("STATE 42\x04", buffer);
 }
 
 TEST(Core, TwoArgs)
@@ -59,7 +105,7 @@ TEST(Core, TwoArgs)
   
   sc->sendMsg(&msg);
   
-  STRCMP_EQUAL("STATE 42 toto", s.getBuffer());
+  STRCMP_EQUAL("STATE 42 toto\x04", s.getBuffer());
 }
 
 

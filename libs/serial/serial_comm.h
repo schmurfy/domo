@@ -2,6 +2,8 @@
 
 #define MAX_ARGS 2
 
+#define EOT '\x04'
+
 class SerialMessage
 {
 private:
@@ -26,8 +28,12 @@ private:
 
 public:
   SerialComm(HardwareSerial *s);
+  virtual ~SerialComm();
   
   int sendMsg(SerialMessage *msg);
+  void dataAvailable();
+  
+  virtual void msgReceived(SerialMessage *msg) = 0;
 };
 
 
