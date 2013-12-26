@@ -18,14 +18,14 @@ public:
     }
   }
   
-  void write(const char *s, size_t size)
+  void write(uint8_t *s, size_t size)
   {
     if( this->buffer ){
       free(this->buffer);
     }
     
     this->buffer = (char *) malloc(size);
-    strlcpy(this->buffer, s, size);
+    strlcpy(this->buffer, (char *)s, size);
   }
   
   const char *getBuffer()

@@ -41,7 +41,7 @@ TEST(Core, CallCallback)
 {
   // fill buffer
   char msg[] = "SET 1 OFF\x04";
-  s.write(msg, strlen(msg) + 1);
+  s.write((uint8_t *)msg, strlen(msg) + 1);
   
   // and act as if we received it
   sc->dataAvailable();
@@ -58,7 +58,7 @@ TEST(Core, CallCallback)
 
 
 // write
-TEST(Core, ShouldAddArgument)
+TEST(Core, ShouldAddStringArgument)
 {
   SerialMessage msg("SEND");
   
@@ -67,6 +67,27 @@ TEST(Core, ShouldAddArgument)
   LONGS_EQUAL(1, msg.argsCount());
   STRCMP_EQUAL("arg1", msg.getArg(0));
 }
+
+TEST(Core, ShouldAddUInt16Argument)
+{
+  SerialMessage msg("SEND");
+  
+  msg.addArgument(17493);
+    
+  LONGS_EQUAL(1, msg.argsCount());
+  STRCMP_EQUAL("4455", msg.getArg(0));
+}
+
+TEST(Core, ShouldAddCharAndUInt16Argument)
+{
+  SerialMessage msg("SEND");
+  
+  msg.addArgument('t', 56);
+    
+  LONGS_EQUAL(1, msg.argsCount());
+  STRCMP_EQUAL("t:38", msg.getArg(0));
+}
+
 
 TEST(Core, NoArgs)
 {
@@ -82,7 +103,7 @@ TEST(Core, OneArgs)
 {
   const char *buffer;
   
-  SerialMessage msg("STATE");
+  SerialMessage msg("STATE_UPDATE");
   
   msg.addArgument("42");
   
@@ -90,22 +111,22 @@ TEST(Core, OneArgs)
   
   
   buffer = s.getBuffer();
-  BYTES_EQUAL('2', buffer[7]);
-  BYTES_EQUAL(0x04, buffer[8]);
+  // BYTES_EQUAL('2', buffer[7]);
+  // BYTES_EQUAL(0x04, buffer[8]);
   
-  STRCMP_EQUAL("STATE 42\x04", buffer);
+  STRCMP_EQUAL("STATE_UPDATE 42\x04", buffer);
 }
 
 TEST(Core, TwoArgs)
 {
   SerialMessage msg("STATE");
   
-  msg.addArgument("42");
+  msg.addArgument(42);
   msg.addArgument("toto");
   
   sc->sendMsg(&msg);
   
-  STRCMP_EQUAL("STATE 42 toto\x04", s.getBuffer());
+  STRCMP_EQUAL("STATE 2a toto\x04", s.getBuffer());
 }
 
 

@@ -40,6 +40,7 @@ typedef struct {
 
 typedef enum {
   SENSOR_TYPE_TEMP = 0x01,
+  SENSOR_TYPE_HUMIDITY,
   SENSOR_TYPE_LIGHT,
   SENSOR_TYPE_BUTTON
 } sensor_type_e;

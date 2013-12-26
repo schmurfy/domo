@@ -14,7 +14,6 @@ SerialComm::~SerialComm()
   
 }
 
-
 // format: <CMD> arg1 arg2\n
 int SerialComm::sendMsg(SerialMessage *msg)
 {
@@ -40,7 +39,7 @@ int SerialComm::sendMsg(SerialMessage *msg)
   buffer[size - 1] = EOT;
   buffer[size++] = 0x0;
   
-  this->serial->write(buffer, size);
+  this->serial->write((uint8_t *)buffer, size);
   
   free(buffer);
   return 0;
@@ -108,6 +107,27 @@ int SerialMessage::addArgument(const char *s)
   strcpy(this->args[index], s);
   
   return 0;
+}
+
+int SerialMessage::addArgument(uint16_t n)
+{
+  uint8_t index = this->args_count++;
+  
+  this->args[index] = (char *) malloc(10);
+  sprintf(this->args[index], "%x", n);
+  
+  return 0;
+}
+
+int SerialMessage::addArgument(char c, uint16_t n)
+{
+  uint8_t index = this->args_count++;
+  
+  this->args[index] = (char *) malloc(10);
+  sprintf(this->args[index], "%c:%x", c, n);
+  
+  return 0;
+  
 }
 
 const char *SerialMessage::getCmd()

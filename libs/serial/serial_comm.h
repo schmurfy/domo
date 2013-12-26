@@ -15,6 +15,8 @@ public:
   SerialMessage(const char *_cmd);
   ~SerialMessage();
   int addArgument(const char *s);
+  int addArgument(uint16_t n);
+  int addArgument(char c, uint16_t n);
   
   const char *getCmd();
   const char *getArg(uint8_t);

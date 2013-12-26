@@ -1,17 +1,18 @@
 
 #Set this to @ to keep the makefile quiet
-ifndef SILENCE
-	SILENCE = @
-endif
+# ifndef SILENCE
+# 	SILENCE = @
+# endif
 
 #--- Inputs ----#
-COMPONENT_NAME = CppUTestExamples
+COMPONENT_NAME = LibTests
 CPPUTEST_HOME = /usr/local/Cellar/cpputest/3.5/
 
 CPPUTEST_USE_EXTENSIONS = Y
 CPP_PLATFORM = Clang
 
-CPPFLAGS= -g
+# CPPUTEST_CPPFLAGS += -fprofile-arcs -ftest-coverage
+# LD_LIBRARIES += -lprofile_rt
 
 # This line is overriding the default new macros. This is helpful
 # when using std library includes like <list> and other containers
